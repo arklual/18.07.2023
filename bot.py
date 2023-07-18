@@ -4,6 +4,7 @@ from datetime import datetime, date
 import zoneinfo
 from strings import *
 from settings import *
+import os
 
 zone = zoneinfo.ZoneInfo("Europe/Moscow")
 app = Client("bot", api_id=api_id, api_hash=api_hash)
@@ -16,14 +17,18 @@ async def on_new_message_1(client, message:Message):
         return
     text = ''
     file_id = None
+    file_path = None
     if message.text:
         text = message.text
     elif message.photo:
         if message.caption:
             text = message.caption
-            file_id = message.photo.file_id
+            file_path = await app.download_media(message.photo.file_id)
         else:
-            await app.send_photo(send_to, message.photo.file_id)
+            file_path = await app.download_media(message.photo.file_id)
+            with open(file_path, 'rb') as f:
+                await app.send_photo(send_to, f)
+            os.remove(file_path)
             return
 
     if '+' in text.lower():
@@ -36,8 +41,10 @@ async def on_new_message_1(client, message:Message):
     elif 'закончим торговлю' in text.lower():
         await app.send_message(send_to, FINISH_MESSAGE)
     else:
-        if file_id:
-            await app.send_photo(send_to, file_id, text)
+        if file_path:
+            with open(file_path, 'rb') as f:
+                await app.send_photo(send_to, f)
+            os.remove(file_path)
         else:
             await app.send_message(send_to, text)
 
