@@ -13,7 +13,7 @@ app = Client("bot", api_id=api_id, api_hash=api_hash)
 async def on_new_message_1(client, message:Message):
     if date.today().weekday() > 4:
         return
-    if datetime.now(zone).hour < 15 or datetime.now(zone).hour > 22:
+    if datetime.now(zone).hour < 13 or datetime.now(zone).hour > 22:
         return
     text = ''
     file_id = None
